@@ -39,15 +39,13 @@ impl Visitor {
             current_location: first_location,
             visited_locations: HashSet::new(),
         };
-        b.visited_locations.insert(first_location);
+        b.visit(first_location);
         b
     }
 
     fn visit(&mut self, loc: Location) {
-        if self.visited_locations.remove(&loc) {
-            let _ = self.visited_locations.insert(loc);
-        } else {
-            self.visited_locations.insert(Location::new(loc.x, loc.y));
+        if !self.visited_locations.contains(&loc) {
+            self.visited_locations.insert(loc);
         }
         self.current_location = loc;
     }
