@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 struct Location {
     x: i32,
     y: i32,
@@ -14,21 +14,6 @@ struct Visitor {
 impl Location {
     fn new(x: i32, y: i32) -> Location {
         Location { x, y }
-    }
-}
-
-impl PartialEq for Location {
-    fn eq(&self, other: &Self) -> bool {
-        self.x == other.x && self.y == other.y
-    }
-}
-
-impl Eq for Location {}
-
-impl std::hash::Hash for Location {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.x.hash(state);
-        self.y.hash(state);
     }
 }
 
