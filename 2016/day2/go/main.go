@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 )
 
 type Position struct {
@@ -27,92 +28,49 @@ func (k *KeyPad) Capture() {
 	k.combination = append(k.combination, k.CurrentNumber())
 }
 
-func (k *KeyPad) MoveUp() {
-	k.currentPosition.y -= 1
-	if k.currentPosition.y < 0 {
-		// We clamp currentPosition.y to 0
-		k.currentPosition.y = 0
+func (k *KeyPad) TryMove(dx, dy int) {
+	newX := k.currentPosition.x + dx
+	newY := k.currentPosition.y + dy
+
+	if newX >= 0 && newX < k.numColumns && newY >= 0 && newY < k.numRows {
+		if k.board[newY][newX] > 0 {
+			k.currentPosition.x = newX
+			k.currentPosition.y = newY
+		}
 	}
-
-	if k.CurrentNumber() < 0 {
-		k.currentPosition.y += 1
-	}
-
-	fmt.Printf("Moved Up. New Position: %d\n", k.CurrentNumber())
-}
-
-func (k *KeyPad) MoveDown() {
-	k.currentPosition.y += 1
-	if k.currentPosition.y > k.numRows-1 {
-		// We clamp currentPosition.y to numRows-1 (handling off-by-ones)
-		k.currentPosition.y = k.numRows - 1
-	}
-
-	if k.CurrentNumber() < 0 {
-		k.currentPosition.y -= 1
-	}
-
-	fmt.Printf("Moved Down. New Position: %d\n", k.CurrentNumber())
-}
-
-func (k *KeyPad) MoveLeft() {
-	k.currentPosition.x -= 1
-	if k.currentPosition.x < 0 {
-		// We clamp currentPosition.x to 0
-		k.currentPosition.x = 0
-	}
-
-	if k.CurrentNumber() < 0 {
-		k.currentPosition.x += 1
-	}
-
-	fmt.Printf("Moved Left. New Position: %d\n", k.CurrentNumber())
-}
-
-func (k *KeyPad) MoveRight() {
-	k.currentPosition.x += 1
-	if k.currentPosition.x > k.numColumns-1 {
-		// We clamp currentPosition.x to numColumns-1 (handling off-by-ones)
-		k.currentPosition.x = k.numColumns - 1
-	}
-
-	if k.CurrentNumber() < 0 {
-		k.currentPosition.x -= 1
-	}
-
-	fmt.Printf("Moved Right. New Position: %d\n", k.CurrentNumber())
 }
 
 func (k *KeyPad) Move(s string) {
 	switch s {
 	case "U":
-		k.MoveUp()
+		k.TryMove(0, -1)
 	case "D":
-		k.MoveDown()
+		k.TryMove(0, 1)
 	case "L":
-		k.MoveLeft()
+		k.TryMove(-1, 0)
 	case "R":
-		k.MoveRight()
+		k.TryMove(1, 0)
 	}
 }
 
 func (k KeyPad) Combination() string {
-	combo := ""
+	var builder strings.Builder
 	for _, d := range k.combination {
-		if d < 10 {
-			combo += fmt.Sprintf("%d", d)
-		} else if d == 10 {
-			combo += "A"
-		} else if d == 11 {
-			combo += "B"
-		} else if d == 12 {
-			combo += "C"
-		} else if d == 13 {
-			combo += "D"
+		switch d {
+		case 10:
+			builder.WriteString("A")
+		case 11:
+			builder.WriteString("B")
+		case 12:
+			builder.WriteString("C")
+		case 13:
+			builder.WriteString("D")
+		default:
+			builder.WriteString(fmt.Sprintf("%d", d))
 		}
 	}
 
-	return combo
+	return builder.String()
 }
 
 func main() {
@@ -157,7 +115,5 @@ func main() {
 		keypad2.Capture()
 	}
 
-	fmt.Print("Bathroom combination:")
-	fmt.Print(keypad2.Combination())
-	fmt.Print("\n")
+	fmt.Printf("Bathroom combination: %s\n", keypad2.Combination())
 }
